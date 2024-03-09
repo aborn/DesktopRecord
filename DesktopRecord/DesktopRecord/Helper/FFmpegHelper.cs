@@ -38,14 +38,13 @@ namespace DesktopRecord.Helper
                 return false;
             Size size = WindowHelper.GetMonitorSize();
             string dpi = size.Width + "x" + size.Height;
+            string fileName = String.Format("{0}{1}{2}", "中慧星光_", DateTime.Now.ToString("yyyyMMddHHmmss"), ".mp4");
             var processInfo = new ProcessStartInfo
             {
                 FileName = ffmpegPath,
                 // Arguments = "-f gdigrab -framerate 30 -offset_x 0 -offset_y 0 -video_size 1920x1080 -i desktop -c:v libx264 -preset ultrafast -crf 0 " + DateTime.Now.ToString("yyyyMMddHHmmss") + "_DesktopRecord.mp4",
-                Arguments = String.Format("-f gdigrab -framerate 30 -offset_x 0 -offset_y 0 -video_size {0} -i desktop -c:v libx264 -preset ultrafast -crf 0 {1}{2}",
-                    dpi,
-                    DateTime.Now.ToString("yyyyMMddHHmmss"),
-                    "_DesktopRecord.mp4"),
+                Arguments = String.Format("-f gdigrab -framerate 30 -offset_x 0 -offset_y 0 -video_size {0} -i desktop -c:v libx264 -preset ultrafast -crf 0 {1}",
+                    dpi, fileName),
                 UseShellExecute = false,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
