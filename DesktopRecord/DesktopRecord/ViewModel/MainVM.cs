@@ -120,6 +120,7 @@ namespace DesktopRecord.ViewModel
                                {
                                    IsShow = false;
                                    IsStart = true;
+                                   FFmpegHelper.AddWarterMarker("中慧星光");
                                    Process.Start(AppDomain.CurrentDomain.BaseDirectory);
                                }, TaskScheduler.FromCurrentSynchronizationContext());
                                task.Start();

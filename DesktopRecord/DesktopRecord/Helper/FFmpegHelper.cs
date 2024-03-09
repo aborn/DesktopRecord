@@ -26,6 +26,8 @@ namespace DesktopRecord.Helper
         // ffmpeg进程
         static Process _process;
 
+        static Process waterMarkerProcess;
+
         // ffmpeg.exe实体文件路径
         static string ffmpegPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg.exe");
 
@@ -38,7 +40,13 @@ namespace DesktopRecord.Helper
                 return false;
             Size size = WindowHelper.GetMonitorSize();
             string dpi = size.Width + "x" + size.Height;
-            string fileName = String.Format("{0}{1}{2}", "中慧星光_", DateTime.Now.ToString("yyyyMMddHHmmss"), ".mp4");
+            string fileName = "in.mp4"; //String.Format("{0}{1}{2}", "中慧星光_", DateTime.Now.ToString("yyyyMMddHHmmss"), ".mp4");
+            string fullFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
+            FileInfo fileInfo = new FileInfo(fullFileName);
+            if (fileInfo.Exists)
+            {
+                fileInfo.Delete();
+            }
             var processInfo = new ProcessStartInfo
             {
                 FileName = ffmpegPath,
@@ -52,6 +60,27 @@ namespace DesktopRecord.Helper
             };
             _process = new Process { StartInfo = processInfo };
             _process.Start();
+            return true;
+        }
+
+        public static bool AddWarterMarker(string waterMarker)
+        {
+            string fileName = String.Format("{0}{1}{2}", "星光录屏_", DateTime.Now.ToString("yyyyMMddHHmmss"), ".mp4");
+            var processInfo = new ProcessStartInfo
+            {
+                FileName = ffmpegPath,
+               
+                Arguments = String.Format("-i in.mp4 -vf \"drawtext=fontsize=60:fontfile=HarmonyOS_Sans_SC_Bold.ttf:text='{0}':x=20:y=20:fontcolor=#37aefe\" {1}",
+                    waterMarker,
+                    fileName),
+                UseShellExecute = false,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true
+            };
+            waterMarkerProcess = new Process { StartInfo = processInfo };
+            waterMarkerProcess.Start();
+            waterMarkerProcess.WaitForExit();
             return true;
         }
 
