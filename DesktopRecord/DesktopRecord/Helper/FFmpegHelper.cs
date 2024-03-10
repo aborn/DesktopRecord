@@ -70,19 +70,21 @@ namespace DesktopRecord.Helper
         /// <returns></returns>
         public static bool AddWarterMarker(string waterMarker)
         {
+            string resultFileName = String.Format("{0}{1}{2}", "星光录屏_", DateTime.Now.ToString("yyyyMMddHHmmss"), ".mp4");
             if (String.IsNullOrEmpty(waterMarker))
             {
+                string inFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "in.mp4");
+                File.Move(inFileName, resultFileName);
                 return true;
             }
-
-            string fileName = String.Format("{0}{1}{2}", "星光录屏_", DateTime.Now.ToString("yyyyMMddHHmmss"), ".mp4");
+            
             var processInfo = new ProcessStartInfo
             {
                 FileName = ffmpegPath,
                
                 Arguments = String.Format("-i in.mp4 -vf \"drawtext=fontsize=60:fontfile=HarmonyOS_Sans_SC_Bold.ttf:text='{0}':x=20:y=20:fontcolor=#37aefe\" {1}",
                     waterMarker,
-                    fileName),
+                    resultFileName),
                 UseShellExecute = false,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,

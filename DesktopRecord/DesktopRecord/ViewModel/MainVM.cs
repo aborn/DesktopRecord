@@ -13,7 +13,7 @@ namespace DesktopRecord.ViewModel
     public class MainVM : ViewModelBase
     {
         private DispatcherTimer tm = new DispatcherTimer();
-        
+
         public int currentCount = 0;
 
         private RecordEnums _recordEnums;
@@ -65,6 +65,22 @@ namespace DesktopRecord.ViewModel
             }
         }
 
+        private string _waterMaker = "";
+
+        public string WaterMaker
+        {
+            get
+            {
+                return _waterMaker;
+            }
+            set
+            {
+                if (value == _waterMaker) { return; }
+                _waterMaker = value;
+                NotifyPropertyChange(nameof(WaterMaker));
+            }
+        }
+
         private ICommand myStart;
 
         public ICommand MyStart
@@ -99,7 +115,7 @@ namespace DesktopRecord.ViewModel
         private void tm_Tick_WaterMaker(object sender, EventArgs e)
         {
             currentCount++;
-            string dots = currentCount % 3 == 2 ? "......" : ( currentCount % 3 == 1 ? "....": "..");
+            string dots = currentCount % 3 == 2 ? "......" : (currentCount % 3 == 1 ? "...." : "..");
             MyTime = $"水印处理中{dots}(" + currentCount + "s)";
         }
         /// <summary>
@@ -133,7 +149,7 @@ namespace DesktopRecord.ViewModel
                                    MyTime = "水印添加中";
                                    IsShow = false;
                                    currentCount = 0;
-                                   FFmpegHelper.AddWarterMarker("中慧星光");
+                                   FFmpegHelper.AddWarterMarker(_waterMaker);
                                }, TaskContinuationOptions.OnlyOnRanToCompletion);
                                waterMarkerTask.ContinueWith(previousTask =>
                                {
@@ -144,7 +160,7 @@ namespace DesktopRecord.ViewModel
                                    currentCount = 0;
                                    Process.Start(AppDomain.CurrentDomain.BaseDirectory);
                                }, TaskContinuationOptions.OnlyOnRanToCompletion);
-                               
+
                            }, a =>
             {
                 return !IsStart;
@@ -158,6 +174,7 @@ namespace DesktopRecord.ViewModel
         {
             RecordCommand = new RelayCommand(Record, CanExecuteRecordCommand);
             RecordStopCommand = new RelayCommand(RecordStop);
+            WaterMaker = "中慧星光"; // 初始值，但没有显示在UI上，为什么？
         }
         void Record(object parameter)
         {
