@@ -63,8 +63,18 @@ namespace DesktopRecord.Helper
             return true;
         }
 
+        /// <summary>
+        /// 功能：给视频添加文字水印
+        /// </summary>
+        /// <param name="waterMarker"></param>
+        /// <returns></returns>
         public static bool AddWarterMarker(string waterMarker)
         {
+            if (String.IsNullOrEmpty(waterMarker))
+            {
+                return true;
+            }
+
             string fileName = String.Format("{0}{1}{2}", "星光录屏_", DateTime.Now.ToString("yyyyMMddHHmmss"), ".mp4");
             var processInfo = new ProcessStartInfo
             {

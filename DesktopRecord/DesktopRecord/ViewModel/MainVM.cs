@@ -13,7 +13,7 @@ namespace DesktopRecord.ViewModel
     public class MainVM : ViewModelBase
     {
         private DispatcherTimer tm = new DispatcherTimer();
-
+        
         public int currentCount = 0;
 
         private RecordEnums _recordEnums;
@@ -95,12 +95,20 @@ namespace DesktopRecord.ViewModel
             currentCount++;
             MyTime = "录制中(" + currentCount + "s)";
         }
+
+        private void tm_Tick_WaterMaker(object sender, EventArgs e)
+        {
+            currentCount++;
+            string dots = currentCount % 3 == 2 ? "......" : ( currentCount % 3 == 1 ? "....": "..");
+            MyTime = $"水印处理中{dots}(" + currentCount + "s)";
+        }
         /// <summary>
         /// 获取或设置
         /// </summary>
         private ICommand myStop;
+
         /// <summary>
-        /// 获取或设置
+        /// ffmpeg模式下的停止按键的handler
         /// </summary>
         public ICommand MyStop
         {
@@ -108,22 +116,35 @@ namespace DesktopRecord.ViewModel
             {
                 return myStop ?? (myStop = new RelayCommand(p =>
                            {
-                               var task = new Task(() =>
+                               var recordTask = new Task(() =>
                                {
                                    FFmpegHelper.Stop();
-                                   MyTime = "开始录制";
+                                   MyTime = "添加水印";
                                    tm.Stop();
                                    currentCount = 0;
-                                   IsShow = true;
+                                   IsShow = false; // 停止Button是否显示
+                                   tm.Tick += tm_Tick_WaterMaker;
+                                   tm.Interval = TimeSpan.FromSeconds(1);
+                                   tm.Start();
                                });
-                               task.ContinueWith(previousTask =>
+                               recordTask.Start();
+                               var waterMarkerTask = recordTask.ContinueWith(previousTask =>
                                {
+                                   MyTime = "水印添加中";
                                    IsShow = false;
-                                   IsStart = true;
+                                   currentCount = 0;
                                    FFmpegHelper.AddWarterMarker("中慧星光");
+                               }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                               waterMarkerTask.ContinueWith(previousTask =>
+                               {
+                                   MyTime = "开始录制";
+                                   IsShow = false;
+                                   IsStart = true; // 录屏Button是否显示
+                                   tm.Stop();
+                                   currentCount = 0;
                                    Process.Start(AppDomain.CurrentDomain.BaseDirectory);
-                               }, TaskScheduler.FromCurrentSynchronizationContext());
-                               task.Start();
+                               }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                               
                            }, a =>
             {
                 return !IsStart;
