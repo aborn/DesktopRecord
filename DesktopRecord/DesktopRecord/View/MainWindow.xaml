@@ -73,7 +73,12 @@
                         </StackPanel>
                         <StackPanel VerticalAlignment="Center">
                             <TextBox Text="{Binding WaterMarker,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
-                                     LostFocus="UIElement_OnLostFocus" Width="180" BorderThickness="1" BorderBrush="AliceBlue"/>
+                                     LostFocus="UIElement_OnLostFocus" 
+                                     PreviewTextInput="UIElement_OnPreviewTextInput"
+                                     Width="180" BorderThickness="1" BorderBrush="AliceBlue"/>
+                        </StackPanel>
+                        <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
+                            <TextBlock x:Name="waterMarkerTB"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
