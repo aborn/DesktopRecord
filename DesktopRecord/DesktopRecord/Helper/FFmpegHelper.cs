@@ -55,8 +55,15 @@ namespace DesktopRecord.Helper
                 // Arguments = "-f gdigrab -framerate 30 -offset_x 0 -offset_y 0 -video_size 1920x1080 -i desktop -c:v libx264 -preset ultrafast -crf 0 " + DateTime.Now.ToString("yyyyMMddHHmmss") + "_DesktopRecord.mp4",
                 // Arguments = String.Format("-f gdigrab -framerate 30 -offset_x 0 -offset_y 0 -video_size {0} -i desktop -c:v libx264 -preset ultrafast -crf 0 {1}",
                 //    dpi, fileName),  // 这个参数没有声音
-                Arguments = String.Format("-f gdigrab -i desktop -f dshow -i audio=\"virtual-audio-capturer\" -vcodec libx264 -acodec libmp3lame -s {0} -r 15 {1}",
-                    dpi, fileName),  // 会录制扬声器的音，电脑里需要安装 screen capture recorder  https://github.com/rdp/screen-capture-recorder-to-video-windows-free
+               
+                //Arguments = String.Format("-f gdigrab -i desktop -f dshow -i audio=\"麦克风 (Realtek(R) Audio)\" -vcodec libx264 -preset ultrafast -acodec libmp3lame -s {0} -r 15 {1}",
+                //    dpi, fileName),
+                // 会录制扬声器的音，电脑里需要安装 screen capture recorder  https://github.com/rdp/screen-capture-recorder-to-video-windows-free
+                // audio=\"virtual-audio-capturer\"  audio="麦克风 (Realtek(R) Audio)"
+                //  .\ffmpeg.exe  -list_devices true -f dshow -i dummy
+
+                Arguments = String.Format("-f gdigrab -i desktop -f dshow -i audio=\"麦克风 (Realtek(R) Audio)\"  -f dshow -i audio=\"virtual-audio-capturer\" -filter_complex amix=inputs=2:duration=first:dropout_transition=2 -vcodec libx264 -preset ultrafast -acodec libmp3lame -s {0} -r 15 {1}",
+                    dpi, fileName),  // 麦克风 + 扬声器
                 UseShellExecute = false,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
