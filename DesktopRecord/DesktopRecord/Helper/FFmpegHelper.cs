@@ -72,7 +72,7 @@ namespace DesktopRecord.Helper
 
 
                 // 以下为无
-                Arguments = String.Format("-f dshow -i audio=\"麦克风 (Realtek(R) Audio)\" -f dshow -i audio=\"virtual-audio-capturer\" -filter_complex amix=inputs=2:duration=first:dropout_transition=2 -f gdigrab -i desktop  -vcodec libx264 -codec:a aac -ac 2 -ar 44100 -tune zerolatency -preset ultrafast -s {0} -r 15 {1}",
+                Arguments = String.Format("-f dshow -i audio=\"麦克风 (Realtek(R) Audio)\" -f dshow -i audio=\"virtual-audio-capturer\" -filter_complex amix=inputs=2:duration=first:dropout_transition=2 -f gdigrab -i desktop  -vcodec libx264 -codec:a aac -ac 2 -ar 44100 -tune zerolatency -preset ultrafast -s {0} -r 30 -qscale 0 {1}",
                        dpi, fileName),  // 麦克风 + 扬声器
 
                 UseShellExecute = false,
