@@ -55,7 +55,7 @@ namespace DesktopRecord.Helper
                 // Arguments = "-f gdigrab -framerate 30 -offset_x 0 -offset_y 0 -video_size 1920x1080 -i desktop -c:v libx264 -preset ultrafast -crf 0 " + DateTime.Now.ToString("yyyyMMddHHmmss") + "_DesktopRecord.mp4",
                 // Arguments = String.Format("-f gdigrab -framerate 30 -offset_x 0 -offset_y 0 -video_size {0} -i desktop -c:v libx264 -preset ultrafast -crf 0 {1}",
                 //    dpi, fileName),  // 这个参数没有声音
-               
+
                 //Arguments = String.Format("-f gdigrab -i desktop -f dshow -i audio=\"麦克风 (Realtek(R) Audio)\" -vcodec libx264 -preset ultrafast -acodec libmp3lame -s {0} -r 15 {1}",
                 //    dpi, fileName),
                 // 会录制扬声器的音，电脑里需要安装 screen capture recorder  https://github.com/rdp/screen-capture-recorder-to-video-windows-free
@@ -82,25 +82,29 @@ namespace DesktopRecord.Helper
         public static bool AddWarterMarker(string waterMarker)
         {
             string resultFileName = String.Format("{0}{1}{2}", "星光录屏_", DateTime.Now.ToString("yyyyMMddHHmmss"), ".mp4");
-            if (String.IsNullOrEmpty(waterMarker))
-            {
-                string inFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "in.mp4");
-                File.Move(inFileName, resultFileName);
-                return true;
-            }
             
-            var processInfo = new ProcessStartInfo
-            {
-                FileName = ffmpegPath,
-               
-                Arguments = String.Format("-i in.mp4 -vf \"drawtext=fontsize=60:fontfile=HarmonyOS_Sans_SC_Bold.ttf:text='{0}':x=20:y=20:fontcolor=#37aefe\" {1}",
-                    waterMarker,
-                    resultFileName),
-                UseShellExecute = false,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
-            };
+            //if (String.IsNullOrEmpty(waterMarker))
+            //{
+            //    string inFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "in.mp4");
+            //    File.Move(inFileName, resultFileName);
+            //    return true;
+            //}
+
+            string withoutWaterMarkerArgs = String.Format("-i in.mp4  {0}", resultFileName);
+            string warterMarkerArgs = String.Format(
+                "-i in.mp4 -vf \"drawtext=fontsize=60:fontfile=HarmonyOS_Sans_SC_Bold.ttf:text='{0}':x=20:y=20:fontcolor=#37aefe\" {1}",
+                waterMarker,
+                resultFileName);
+            var processInfo =
+                new ProcessStartInfo
+                {
+                    FileName = ffmpegPath,
+                    Arguments = String.IsNullOrWhiteSpace(waterMarker) ? withoutWaterMarkerArgs : warterMarkerArgs,
+                    UseShellExecute = false,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    CreateNoWindow = true
+                };
             waterMarkerProcess = new Process { StartInfo = processInfo };
             waterMarkerProcess.Start();
             waterMarkerProcess.WaitForExit();
