@@ -34,7 +34,7 @@ namespace DesktopRecord.Helper
         /// <summary>
         /// 功能: 开始录制
         /// </summary>
-        public static bool Start()
+        public static bool Start(string waterText)
         {
             if (!File.Exists(ffmpegPath))
                 return false;
@@ -47,6 +47,10 @@ namespace DesktopRecord.Helper
             {
                 fileInfo.Delete();
             }
+
+            // string waterText = "中慧";
+            string waterMarker = String.Format(" -vf \"drawtext=fontsize=60:fontfile=HarmonyOS_Sans_SC_Bold.ttf:text='{0}':x=20:y=20:fontcolor=#37aefe\"", waterText);
+
             var processInfo = new ProcessStartInfo
             {
                 FileName = ffmpegPath,
@@ -66,14 +70,14 @@ namespace DesktopRecord.Helper
                 //Arguments = String.Format("-f gdigrab -i desktop -f dshow -i audio=\"virtual-audio-capturer\" -vcodec libx264 -preset ultrafast -acodec libmp3lame -s {0} -r 15 {1}",
                 //    dpi, fileName),
 
-                /** 麦克风 + 扬声器，但有Bug，音频和视频不同步 */
+                /*** 麦克风 + 扬声器，但有Bug，音频和视频不同步 */
                 // Arguments = String.Format("-f gdigrab -i desktop -f dshow -i audio=\"麦克风 (Realtek(R) Audio)\"  -f dshow -i audio=\"virtual-audio-capturer\" -filter_complex amix=inputs=2:duration=first:dropout_transition=2 -vcodec libx264 -preset ultrafast -acodec libmp3lame -s {0} -r 15 {1}",
                 //    dpi, fileName),  
 
 
-                // 以下为无
-                Arguments = String.Format("-f dshow -i audio=\"麦克风 (Realtek(R) Audio)\" -f dshow -i audio=\"virtual-audio-capturer\" -filter_complex amix=inputs=2:duration=first:dropout_transition=2 -f gdigrab -i desktop  -vcodec libx264 -codec:a aac -ac 2 -ar 44100 -tune zerolatency -preset ultrafast -s {0} -r 30 -qscale 0 {1}",
-                       dpi, fileName),  // 麦克风 + 扬声器
+                /*** 麦克风 + 扬声器，但有Bug，保持音频和视频的同步, 增加字幕 */
+                Arguments = String.Format(" -f dshow -i audio=\"麦克风 (Realtek(R) Audio)\" -thread_queue_size 512 -f dshow -i audio=\"virtual-audio-capturer\" -filter_complex amix=inputs=2:duration=first:dropout_transition=2 -thread_queue_size 64 -f gdigrab -i desktop -vcodec libx264 -preset ultrafast -codec:a aac -ac 2 -ar 44100 -tune zerolatency -q:a 0 -s {0} {2} {1}",
+                       dpi, fileName, waterMarker),  // 麦克风 + 扬声器
 
                 UseShellExecute = false,
                 RedirectStandardInput = true,
@@ -93,6 +97,7 @@ namespace DesktopRecord.Helper
         public static bool AddWarterMarker(string waterMarker)
         {
             string resultFileName = String.Format("{0}{1}{2}", "星光录屏_", DateTime.Now.ToString("yyyyMMddHHmmss"), ".mp4");
+            string resultFileNameOrigin = String.Format("{0}{1}{2}", "星光录屏_", DateTime.Now.ToString("yyyyMMddHHmmss"), "_原片.mp4");
 
             //if (String.IsNullOrEmpty(waterMarker))
             //{
@@ -101,16 +106,17 @@ namespace DesktopRecord.Helper
             //    return true;
             //}
 
-            string withoutWaterMarkerArgs = String.Format("-i in.mp4  {0}", resultFileName);
-            string warterMarkerArgs = String.Format(
-                "-i in.mp4 -vf \"drawtext=fontsize=60:fontfile=HarmonyOS_Sans_SC_Bold.ttf:text='{0}':x=20:y=20:fontcolor=#37aefe\" {1}",
-                waterMarker,
-                resultFileName);
+            // 视频压缩
+            string withoutWaterMarkerArgs = String.Format("-i in.mp4 -vcodec libx264 -codec:a aac -ac 2 -ar 44100 -tune zerolatency  {0}", resultFileName);
+            //string warterMarkerArgs = String.Format(
+            //    "-i in.mp4 -vf \"drawtext=fontsize=60:fontfile=HarmonyOS_Sans_SC_Bold.ttf:text='{0}':x=20:y=20:fontcolor=#37aefe\" {1}",
+            //    waterMarker,
+            //    resultFileName);
             var processInfo =
                 new ProcessStartInfo
                 {
                     FileName = ffmpegPath,
-                    Arguments = String.IsNullOrWhiteSpace(waterMarker) ? withoutWaterMarkerArgs : warterMarkerArgs,
+                    Arguments = withoutWaterMarkerArgs,
                     UseShellExecute = false,
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
@@ -119,6 +125,8 @@ namespace DesktopRecord.Helper
             waterMarkerProcess = new Process { StartInfo = processInfo };
             waterMarkerProcess.Start();
             waterMarkerProcess.WaitForExit();
+            string inFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "in.mp4");
+            File.Move(inFileName, resultFileNameOrigin);
             return true;
         }
 

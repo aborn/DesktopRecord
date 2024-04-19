@@ -90,7 +90,7 @@ namespace DesktopRecord.ViewModel
                 return myStart ?? (myStart = new RelayCommand(p =>
                 {
                     App.Current.MainWindow.WindowState = System.Windows.WindowState.Minimized;
-                    if (!FFmpegHelper.Start())
+                    if (!FFmpegHelper.Start(_waterMaker))
                     {
                         App.Current.MainWindow.WindowState = System.Windows.WindowState.Normal;
                         Message.Push("未找到 【ffmpeg.exe】,请下载", System.Windows.MessageBoxImage.Error);
@@ -116,7 +116,7 @@ namespace DesktopRecord.ViewModel
         {
             currentCount++;
             string dots = currentCount % 3 == 2 ? "......" : (currentCount % 3 == 1 ? "...." : "..");
-            MyTime = $"水印处理中{dots}(" + currentCount + "s)";
+            MyTime = $"处理中{dots}(" + currentCount + "s)";
         }
         /// <summary>
         /// 获取或设置
@@ -146,7 +146,7 @@ namespace DesktopRecord.ViewModel
                                recordTask.Start();
                                var waterMarkerTask = recordTask.ContinueWith(previousTask =>
                                {
-                                   MyTime = "水印添加中";
+                                   MyTime = "处理中";
                                    IsShow = false;
                                    currentCount = 0;
                                    FFmpegHelper.AddWarterMarker(_waterMaker);
@@ -174,7 +174,7 @@ namespace DesktopRecord.ViewModel
         {
             RecordCommand = new RelayCommand(Record, CanExecuteRecordCommand);
             RecordStopCommand = new RelayCommand(RecordStop);
-            WaterMaker = "中慧星光"; // 初始值，但没有显示在UI上，为什么？
+            WaterMaker = "星光录屏"; // 初始值，但没有显示在UI上，为什么？
         }
         void Record(object parameter)
         {
