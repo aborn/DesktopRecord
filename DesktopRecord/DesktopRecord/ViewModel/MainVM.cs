@@ -4,12 +4,16 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Microsoft.Win32;
 using WPFDevelopers.Controls;
 using WPFDevelopers.Helpers;
 using Win32 = DesktopRecord.Helper.Win32;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace DesktopRecord.ViewModel
 {
+
     public class MainVM : ViewModelBase
     {
         private DispatcherTimer tm = new DispatcherTimer();
@@ -81,6 +85,29 @@ namespace DesktopRecord.ViewModel
             }
         }
 
+
+        private ICommand openFiles;
+
+        
+
+        public ICommand OpenFiles
+        {
+            get
+            {
+                return openFiles ?? (openFiles = new RelayCommand(p =>
+                {
+                    string fileDir = AppDomain.CurrentDomain.BaseDirectory;
+                    string fileName = FileHelper.GetLatestFileTimeInfo(fileDir, ".mp4").FileName;
+                    string filePath = Path.Combine(fileDir, fileName);
+                    FileHelper.OpenFilePathLocation(filePath);
+                    // Process.Start(AppDomain.CurrentDomain.BaseDirectory);
+                }, a =>
+                {
+                    return IsStart;
+                }));
+            }
+        }
+
         private ICommand myStart;
 
         public ICommand MyStart
@@ -135,7 +162,7 @@ namespace DesktopRecord.ViewModel
                                var recordTask = new Task(() =>
                                {
                                    FFmpegHelper.Stop();
-                                   MyTime = "添加水印";
+                                   MyTime = "压缩处理";
                                    tm.Stop();
                                    currentCount = 0;
                                    IsShow = false; // 停止Button是否显示
@@ -158,7 +185,11 @@ namespace DesktopRecord.ViewModel
                                    IsStart = true; // 录屏Button是否显示
                                    tm.Stop();
                                    currentCount = 0;
-                                   Process.Start(AppDomain.CurrentDomain.BaseDirectory);
+                                   // Process.Start(AppDomain.CurrentDomain.BaseDirectory);
+                                   string fileDir = AppDomain.CurrentDomain.BaseDirectory;
+                                   string fileName = FileHelper.GetLatestFileTimeInfo(fileDir, ".mp4").FileName;
+                                   string filePath = Path.Combine(fileDir, fileName);
+                                   FileHelper.OpenFilePathLocation(filePath);
                                }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
                            }, a =>

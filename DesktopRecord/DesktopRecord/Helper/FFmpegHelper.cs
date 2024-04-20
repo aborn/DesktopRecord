@@ -40,7 +40,7 @@ namespace DesktopRecord.Helper
                 return false;
             Size size = WindowHelper.GetMonitorSize();
             string dpi = size.Width + "x" + size.Height;
-            string fileName = "in.mp4"; //String.Format("{0}{1}{2}", "中慧星光_", DateTime.Now.ToString("yyyyMMddHHmmss"), ".mp4");
+            string fileName = "in.mp4"; //String.Format("{0}{1}{2}", "星光录屏_", DateTime.Now.ToString("yyyyMMddHHmmss"), ".mp4");
             string fullFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName);
             FileInfo fileInfo = new FileInfo(fullFileName);
             if (fileInfo.Exists)
@@ -48,8 +48,9 @@ namespace DesktopRecord.Helper
                 fileInfo.Delete();
             }
 
-            // string waterText = "中慧";
-            string waterMarker = String.Format(" -vf \"drawtext=fontsize=60:fontfile=HarmonyOS_Sans_SC_Bold.ttf:text='{0}':x=20:y=20:fontcolor=#37aefe\"", waterText);
+            // string waterText = "星光录屏";
+            string waterMarker = String.IsNullOrWhiteSpace(waterText) ? string.Empty :
+                String.Format(" -vf \"drawtext=fontsize=60:fontfile=HarmonyOS_Sans_SC_Bold.ttf:text='{0}':x=20:y=20:fontcolor=#37aefe\"", waterText);
 
             var processInfo = new ProcessStartInfo
             {

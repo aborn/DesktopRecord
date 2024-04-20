@@ -64,6 +64,11 @@
                         Command="{Binding MyStop}"
                         Content="停止录制"
                         Style="{StaticResource WD.DangerPrimaryButton}" />
+                        <Button
+                            Margin="5,0,0,0"
+                            Command="{Binding OpenFiles}"
+                            Content="打开目录"
+                            Style="{StaticResource WD.DefaultButton}" />
                     </StackPanel>
                     <StackPanel HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
